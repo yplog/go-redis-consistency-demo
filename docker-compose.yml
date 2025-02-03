@@ -1,0 +1,36 @@
+services:
+  redis-main:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - redis-network
+    command: redis-server --appendonly yes --repl-backlog-ttl 20
+
+  redis-replica:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    command: >
+      sh -c "
+      sleep 10 &&
+      redis-server --replicaof redis-main 6379 --repl-backlog-ttl 20 --repl-disable-tcp-nodelay yes &
+      while true; do
+        echo 'Disconnecting from master...';
+        redis-cli -h localhost -p 6379 REPLICAOF NO ONE;
+        sleep 10;
+        
+        echo 'Reconnecting to master...';
+        redis-cli -h localhost -p 6379 REPLICAOF redis-main 6379;
+        
+        echo 'Waiting 15 seconds before next cycle...';
+        sleep 15;
+      done"
+    depends_on:
+      - redis-main
+    networks:
+      - redis-network
+
+networks:
+  redis-network:
+    driver: bridge
