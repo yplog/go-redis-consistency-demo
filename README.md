@@ -1,40 +1,47 @@
-# go-redis-consistency-demo
+# Go Redis Consistency Demo
 
 A Go-based demo comparing Strong Consistency and Eventual Consistency using Redis replication. 
 
-## Install Redis With Docker Compose
+This demo showcases two different consistency models:
+
+- **Strong Consistency**: Ensures data is up-to-date across all replicas.
+- **Eventual Consistency**: Guarantees data will be consistent across replicas over time.
+
+## Redis Setup (Using Docker Compose)
 
 ```bash
 # Start Redis containers
-docker compose up -d
+docker compose up
 
 # Verify replication status
 docker compose exec redis-replica redis-cli info replication
 ```
 
-## Run Go Application with Eventual Consistency
+### Running the Go Application
 
+For Eventual Consistency mode:
 ```bash
 go run src/main.go -mode=eventual
 ```
 
-## Run Go Application with Strong Consistency
-
+For Strong Consistency mode:
 ```bash
 go run src/main.go -mode=strong
 ```
 
-## Test
+## API Endpoints
 
+### Increment Counter
 ```bash
 curl http://localhost:8080/increment
 ```
 
+### Get Counter Value
 ```bash
 curl http://localhost:8080/get
 ```
 
-## Stop Redis Containers
+## Stopping Services
 
 ```bash
 docker compose down
