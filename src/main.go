@@ -47,6 +47,20 @@ func main() {
 
 // Increment the counter always write to main Redis
 func handleIncrement(w http.ResponseWriter, r *http.Request) {
+	if consistencyMode == "strong" {
+		// Wait for replication to complete with WAIT command
+		replicas, err := mainRedisClient.Wait(ctx, 1, 5000).Result()
+		if err != nil {
+			http.Error(w, "Replication wait failed: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		if replicas < 1 {
+			http.Error(w, "Could not replicate to enough replicas", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	newValue, err := mainRedisClient.Incr(ctx, CounterKey).Result()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

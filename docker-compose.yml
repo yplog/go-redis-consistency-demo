@@ -18,13 +18,12 @@ services:
       while true; do
         echo 'Disconnecting from master...';
         redis-cli -h localhost -p 6379 REPLICAOF NO ONE;
-        sleep 10;
-        
+        sleep 5;
         echo 'Reconnecting to master...';
         redis-cli -h localhost -p 6379 REPLICAOF redis-main 6379;
-        
-        echo 'Waiting 15 seconds before next cycle...';
-        sleep 15;
+        sleep 5;
+        echo 'Waiting 5 seconds before next cycle...';
+        sleep 5;
       done"
     depends_on:
       - redis-main
